@@ -44,3 +44,4 @@ out/
 storage/
 
 src/main/frontend/generated/
+/easy-rag-embeddings.json

@@ -1,12 +1,15 @@
 package org.vaadin.marcus.langchain4j;
 
+import jakarta.enterprise.context.ApplicationScoped;
+
 import dev.langchain4j.service.MemoryId;
 import dev.langchain4j.service.SystemMessage;
 import dev.langchain4j.service.UserMessage;
-import dev.langchain4j.service.spring.AiService;
-import reactor.core.publisher.Flux;
+import io.quarkiverse.langchain4j.RegisterAiService;
+import io.quarkiverse.langchain4j.ToolBox;
 
-@AiService
+@RegisterAiService
+@ApplicationScoped
 public interface LangChain4jAssistant {
 
     @SystemMessage("""
@@ -20,7 +23,8 @@ public interface LangChain4jAssistant {
             Before changing a booking, you MUST ensure it is permitted by the terms.
             If there is a charge for the change, you MUST ask the user to consent before proceeding.
             Use the provided functions to fetch booking details, change bookings, and cancel bookings.
-            Today is {{current_date}}.
+            Today is {current_date}.
             """)
-    Flux<String> chat(@MemoryId String chatId, @UserMessage String userMessage);
+    @ToolBox(LangChain4jTools.class)
+    String chat(@MemoryId String chatId, @UserMessage String userMessage);
 }

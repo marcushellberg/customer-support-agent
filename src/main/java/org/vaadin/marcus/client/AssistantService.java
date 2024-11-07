@@ -1,9 +1,9 @@
 package org.vaadin.marcus.client;
 
+import org.vaadin.marcus.langchain4j.LangChain4jAssistant;
+
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import com.vaadin.hilla.BrowserCallable;
-import org.vaadin.marcus.langchain4j.LangChain4jAssistant;
-import reactor.core.publisher.Flux;
 
 @BrowserCallable
 @AnonymousAllowed
@@ -15,7 +15,7 @@ public class AssistantService {
         this.langChain4JAssistant = langChain4JAssistant;
     }
 
-    public Flux<String> chat(String chatId, String userMessage) {
+    public String chat(String chatId, String userMessage) {
         return langChain4JAssistant.chat(chatId, userMessage);
     }
 }

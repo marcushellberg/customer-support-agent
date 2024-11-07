@@ -1,16 +1,17 @@
 package org.vaadin.marcus.langchain4j;
 
-import dev.langchain4j.agent.tool.P;
-import dev.langchain4j.agent.tool.Tool;
-import org.springframework.stereotype.Component;
+import java.time.LocalDate;
+
+import jakarta.enterprise.context.ApplicationScoped;
+
 import org.vaadin.marcus.service.BookingDetails;
 import org.vaadin.marcus.service.FlightService;
 
-import java.time.LocalDate;
+import dev.langchain4j.agent.tool.P;
+import dev.langchain4j.agent.tool.Tool;
 
-@Component
+@ApplicationScoped
 public class LangChain4jTools {
-
     private final FlightService service;
 
     public LangChain4jTools(FlightService service) {
@@ -33,16 +34,17 @@ public class LangChain4jTools {
         String bookingNumber,
         String firstName,
         String lastName,
-        LocalDate newFlightDate,
-        @P("3-letter code for departure airport") String newDepartureAirport,
-        @P("3-letter code for arrival airport") String newArrivalAirport
+        @P("month of the new flight date") int flightDateMonth,
+        @P("day of the month of the new flight date") int flightDateDayOfMonth,
+        @P("year of the new flight date") int flightDateYear,
+        @P("3-letter code for departure airport") String departureAirport,
+        @P("3-letter code for arrival airport") String arrivalAirport
     ) {
-        service.changeBooking(bookingNumber, firstName, lastName, newFlightDate, newDepartureAirport, newArrivalAirport);
+        service.changeBooking(bookingNumber, firstName, lastName, LocalDate.of(flightDateYear, flightDateMonth, flightDateDayOfMonth), departureAirport, arrivalAirport);
     }
 
     @Tool
     public void cancelBooking(String bookingNumber, String firstName, String lastName) {
         service.cancelBooking(bookingNumber, firstName, lastName);
     }
-
 }

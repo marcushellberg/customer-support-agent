@@ -44,21 +44,25 @@ export default function Index() {
       content: message
     });
     let first = true;
-    AssistantService.chat(chatId, message)
-      .onNext(token => {
-        if (first && token) {
-          addMessage({
-            role: 'assistant',
-            content: token
-          });
 
-          first = false;
-        } else {
-          appendToLatestMessage(token);
-        }
-      })
-      .onError(() => setWorking(false))
-      .onComplete(() => setWorking(false));
+    AssistantService.chat(chatId, message)
+        .then(token => {
+          if (first && token) {
+            addMessage({
+              role: 'assistant',
+              content: token
+            });
+
+            first = false;
+          } else {
+            appendToLatestMessage(token);
+          }
+        })
+        .catch(e => addMessage({
+          role: 'assistant',
+          content: 'Sorry but an error occurred. Please re-try your request.'
+        }))
+        .finally(() => setWorking(false));
   }
 
 

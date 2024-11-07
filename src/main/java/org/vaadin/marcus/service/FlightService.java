@@ -1,25 +1,31 @@
 package org.vaadin.marcus.service;
 
-import org.springframework.stereotype.Service;
-import org.vaadin.marcus.data.*;
-
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.stream.IntStream;
 
-@Service
+import jakarta.annotation.PostConstruct;
+import jakarta.enterprise.context.ApplicationScoped;
+
+import org.vaadin.marcus.data.Booking;
+import org.vaadin.marcus.data.BookingClass;
+import org.vaadin.marcus.data.BookingData;
+import org.vaadin.marcus.data.BookingStatus;
+import org.vaadin.marcus.data.Customer;
+import org.vaadin.marcus.service.Exceptions.BookingCannotBeCancelledException;
+import org.vaadin.marcus.service.Exceptions.BookingCannotBeChangedException;
+import org.vaadin.marcus.service.Exceptions.BookingNotFoundException;
+
+import io.quarkus.logging.Log;
+
+@ApplicationScoped
 public class FlightService {
+    private final BookingData db = new BookingData();
 
-    private final BookingData db;
-
-    public FlightService() {
-        db = new BookingData();
-
-        initDemoData();
-    }
-
-    private void initDemoData() {
+    @PostConstruct
+    void initDemoData() {
         List<String> firstNames = List.of("John", "Jane", "Michael", "Sarah", "Robert");
         List<String> lastNames = List.of("Doe", "Smith", "Johnson", "Williams", "Taylor");
         List<String> airportCodes = List.of("LAX", "SFO", "JFK", "LHR", "CDG", "ARN", "HEL", "TXL", "MUC", "FRA", "MAD", "SJC");
@@ -28,15 +34,13 @@ public class FlightService {
         var customers = new ArrayList<Customer>();
         var bookings = new ArrayList<Booking>();
 
-        for (int i = 0; i < 5; i++) {
+        IntStream.range(0, 5).forEach(i -> {
             String firstName = firstNames.get(i);
             String lastName = lastNames.get(i);
             String from = airportCodes.get(random.nextInt(airportCodes.size()));
             String to = airportCodes.get(random.nextInt(airportCodes.size()));
             BookingClass bookingClass = BookingClass.values()[random.nextInt(BookingClass.values().length)];
-            Customer customer = new Customer();
-            customer.setFirstName(firstName);
-            customer.setLastName(lastName);
+            Customer customer = new Customer(firstName, lastName);
 
             LocalDate date = LocalDate.now().plusDays(2*i);
 
@@ -45,13 +49,13 @@ public class FlightService {
 
             customers.add(customer);
             bookings.add(booking);
-        }
+        });
 
         // Reset the database on each start
         db.setCustomers(customers);
         db.setBookings(bookings);
 
-        System.out.println("Demo data initialized");
+        Log.info("Demo data initialized");
     }
 
     public List<BookingDetails> getBookings() {
@@ -64,7 +68,7 @@ public class FlightService {
                 .filter(b -> b.getCustomer().getFirstName().equalsIgnoreCase(firstName))
                 .filter(b -> b.getCustomer().getLastName().equalsIgnoreCase(lastName))
                 .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("Booking not found"));
+                .orElseThrow(() -> new BookingNotFoundException(bookingNumber));
     }
 
     public BookingDetails getBookingDetails(String bookingNumber, String firstName, String lastName) {
@@ -75,8 +79,8 @@ public class FlightService {
     public void changeBooking(String bookingNumber, String firstName, String lastName,
                               LocalDate newFlightDate, String newDepartureAirport, String newArrivalAirport) {
         var booking = findBooking(bookingNumber, firstName, lastName);
-        if(booking.getDate().isBefore(LocalDate.now().plusDays(1))){
-            throw new IllegalArgumentException("Booking cannot be changed within 24 hours of the start date.");
+        if (booking.getDate().isBefore(LocalDate.now().plusDays(1))) {
+            throw new BookingCannotBeChangedException(bookingNumber);
         }
         booking.setDate(newFlightDate);
         booking.setFrom(newDepartureAirport);
@@ -86,7 +90,7 @@ public class FlightService {
     public void cancelBooking(String bookingNumber, String firstName, String lastName) {
         var booking = findBooking(bookingNumber, firstName, lastName);
         if (booking.getDate().isBefore(LocalDate.now().plusDays(2))) {
-            throw new IllegalArgumentException("Booking cannot be cancelled within 48 hours of the start date.");
+            throw new BookingCannotBeCancelledException(bookingNumber);
         }
         booking.setBookingStatus(BookingStatus.CANCELLED);
     }

@@ -17,7 +17,7 @@
     <maven.compiler.release>17</maven.compiler.release>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <quarkus.hilla.version>24.5.0</quarkus.hilla.version>
+    <quarkus.hilla.version>24.6.0</quarkus.hilla.version>
     <quarkus.langchain4j.version>0.21.0</quarkus.langchain4j.version>
     <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
     <quarkus.platform.group-id>io.quarkus.platform</quarkus.platform.group-id>

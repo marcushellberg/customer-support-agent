@@ -21,7 +21,7 @@
     <quarkus.langchain4j.version>0.21.0</quarkus.langchain4j.version>
     <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
     <quarkus.platform.group-id>io.quarkus.platform</quarkus.platform.group-id>
-    <quarkus.platform.version>3.16.2</quarkus.platform.version>
+    <quarkus.platform.version>3.17.5</quarkus.platform.version>
     <quarkus.playwright.version>2.0.0</quarkus.playwright.version>
     <surefire-plugin.version>3.5.2</surefire-plugin.version>
     <vaadin.version>24.5.4</vaadin.version>
